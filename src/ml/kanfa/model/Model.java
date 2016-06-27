@@ -13,7 +13,7 @@ public class Model implements Observable, IName{
     private static final String DIR = "resources/flux/";
     private static final String CONFIG = "config_";
 
-    public Vector<Observer>      observers   = new Vector<>();
+    private Vector<Observer>      observers   = new Vector<>();
     private Map<String, Observer> m_observers = new HashMap<>();
     private ArrayList<Cell> cells;
     private Score currentScore;
@@ -23,6 +23,7 @@ public class Model implements Observable, IName{
     private boolean isOver;
     private boolean win;
     private boolean repaint;
+    private int count = 0;
 
     public Model(PlatformConfig config){
         this.config = config;
@@ -30,7 +31,7 @@ public class Model implements Observable, IName{
         this.bestScore = new Score();
         this.cells = new ArrayList<>();
         this.data = new Data(this.config, this.cells, this.currentScore, this.bestScore);
-        this.setup(this.cells, 2);
+        this.execute();
     }
 
     public Model(Data data){
@@ -42,39 +43,37 @@ public class Model implements Observable, IName{
         this(new Config_4x4());
     }
 
-    private void setup(ArrayList<Cell> cells, int length){
+    private void setup(ArrayList<Cell> cells){
         for (int i = 0; i < this.config.getSide(); i++){
             for (int j = 0; j < this.config.getSide(); j++){
                 cells.add(new Cell(j, i));
             }
         }
-
-        for (Cell cell : init(this.config.getSide(), length)){
-            cells.stream().
-                    filter(c -> c.getPosX() == cell.getPosX() && c.getPosY() == cell.getPosY()).
-                    forEach(c -> c.setValue(cell.getValue()));
-        }
     }
 
     public void initialize(){
-        this.cells = new ArrayList<>();
         this.isOver = false;
         this.win = false;
         this.repaint = true;
-        this.setup(this.cells, 1);
+        this.count = 0;
+        this.execute();
         this.currentScore.setValue(0);
         this.currentScore.setCurrent(0);
         this.data.setCells(this.cells);
         this.notifyObservers(this, OBS_FRAME);
     }
 
-    private boolean win(ArrayList<Cell> cells){
-        for (Cell cell : cells){
-            if (cell.getValue() == 2048)
-                return true;
-        }
-
-        return false;
+    private void execute(){
+        this.cells = new ArrayList<>();
+        this.setup(this.cells);
+        (new Thread(() -> {
+            for (int i = 0; i < 2; i++){
+                this.generate();
+                try {Thread.sleep(200);}
+                catch (InterruptedException e) {}
+                this.notifyObserver(OBS_GAME, this);
+            }
+        })).start();
     }
 
     @Override public void addObserver(Observer o) {
@@ -86,7 +85,6 @@ public class Model implements Observable, IName{
             this.observers.add(o);
             this.m_observers.putIfAbsent(name, o);
         }
-
     }
 
     @Override public void removeObserver(Observer o) {
@@ -116,31 +114,16 @@ public class Model implements Observable, IName{
 
     @Override public void notifyObservers(Object o) {
         for (Observer observer : this.observers){
-            (new Thread(() -> observer.update(o))).start();
+            observer.update(o);
         }
     }
 
-
-    public void notifyObservers(Object o, String ignore) {
-        this.m_observers.keySet().stream().filter(key -> !key.equals(ignore)).forEach(key -> m_observers.get(key).update(o));
+    public void notifyObservers(Object o, String... ignores) {
+        this.m_observers.keySet().stream().filter(key -> !Arrays.asList(ignores).contains(key)).forEach(key -> m_observers.get(key).update(o));
     }
 
     public void notifyWin(){
-        this.win = true;
         this.notifyObserver(OBS_FRAME, this);
-    }
-
-    private ArrayList<Cell> init(int bound, int length){
-        Random r = new Random();
-        ArrayList<Cell> cells = new ArrayList<>();
-        ArrayList<Cell> emptyCells = new ArrayList<>(this.emptyCell());
-        for (int i = 0; i < length; i++){
-            Cell cell = emptyCells.get(r.nextInt(bound));
-            emptyCells.remove(cell);
-            cell.setValue(Generator.generate());
-            cells.add(cell);
-        }
-        return cells;
     }
 
     private ArrayList<Cell> emptyCell(){
@@ -149,7 +132,7 @@ public class Model implements Observable, IName{
         return cells;
     }
 
-    public void generate(){
+    private void generate(){
         ArrayList<Cell> array = emptyCell();
         if (array.size() > 0){
             this.generate(array);
@@ -160,23 +143,45 @@ public class Model implements Observable, IName{
         Random rand = new Random();
         Cell c = cells.get(rand.nextInt(cells.size()));
         this.cells.stream().filter(cell -> (cell.getPosX() == c.getPosX() &&
-                cell.getPosY() == c.getPosY())).forEach(cell -> {
-            cell.setValue(Generator.generate());
-        });
+                cell.getPosY() == c.getPosY())).forEach(
+                cell -> cell.setValue(Generator.generate())
+        );
     }
 
     public void move(Direction d) {
-        switch (d){
-            case UP: moveUp(); break;
-            case DOWN: moveDown(); break;
-            case LEFT: moveLeft(); break;
-            case RIGHT: moveRight(); break;
-            default:
+        boolean b = false;
+        if (!this.win){
+            switch (d){
+                case UP: moveUp(); break;
+                case DOWN: moveDown(); break;
+                case LEFT: moveLeft(); break;
+                case RIGHT: moveRight(); break;
+                default:
+            }
+            this.generate();
+            this.notifyObservers(this, OBS_FRAME);
+            this.win = this.check(this.cells);
+            if (this.win){
+                this.notifyWin();
+                b = true;
+            }
         }
-        this.notifyObservers(this, OBS_FRAME);
-        if (this.win(this.cells)) this.notifyWin();
+        if (b){
+            this.notifyWin();
+        }
     }
 
+    private boolean check(ArrayList<Cell> cells){
+        boolean b = false;
+        for (Cell cell : cells){
+            if (cell.getValue() == 16){
+                b =  true;
+                count++;
+            }
+        }
+
+        return b && (count == 1);
+    }
 
     private void moveUp(){
         moveLeft(this.reverseArray());
@@ -305,15 +310,15 @@ public class Model implements Observable, IName{
         return CellUtils.searchEmpty(cell, d, index);
     }
 
-    public int searchIndex(ArrayList<Cell> cell, int d, int index) {
+    private int searchIndex(ArrayList<Cell> cell, int d, int index) {
         return CellUtils.searchIndex(cell, d, index);
     }
 
-    public ArrayList<ArrayList<Cell>> toArray(){
+    private ArrayList<ArrayList<Cell>> toArray(){
         return CellUtils.toArray(this.cells);
     }
 
-    public ArrayList<ArrayList<Cell>> reverseArray(){
+    private ArrayList<ArrayList<Cell>> reverseArray(){
         return CellUtils.reverseArray(this.cells);
     }
 
@@ -357,10 +362,6 @@ public class Model implements Observable, IName{
     public void notifyGameOver() {
         this.isOver = true;
         this.notifyObserver(OBS_FRAME, this);
-    }
-
-    public void setOver(boolean over) {
-        this.isOver = over;
     }
 
     public void setData(Data data) {

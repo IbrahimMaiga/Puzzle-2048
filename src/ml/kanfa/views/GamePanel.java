@@ -26,7 +26,6 @@ public class GamePanel extends JPanel implements KeyListener, Observer, IName{
     private static final int SPACE = 4;
     private Controller controller;
     private PlatformConfig config;
-    private boolean isOver;
 
     public GamePanel(Model model){
         this.setFocusable(true);
@@ -40,12 +39,13 @@ public class GamePanel extends JPanel implements KeyListener, Observer, IName{
         this.controller = new Controller(this.model);
         this.config = this.model.getConfig();
         this.getBlocLength = this.config.getBlocLength();
-        this.cells = model.getCells();
+        this.cells = this.model.getCells();
     }
 
 
 
     @Override public void paint(Graphics g) {
+        super.paint(g);
         Graphics2D graphics2D = (Graphics2D)g;
         graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         graphics2D.setColor(this.config.getBackground());
@@ -56,7 +56,7 @@ public class GamePanel extends JPanel implements KeyListener, Observer, IName{
         for (Cell cell : this.cells){
             int x = cell.getPosX() * getBlocLength;
             int y = cell.getPosY() * getBlocLength;
-            graphics2D.setFont(new Font("Arial", Font.CENTER_BASELINE, 24));
+            graphics2D.setFont(new Font("Arial", Font.PLAIN, 24));
             graphics2D.setColor(cell.getBackground());
             graphics2D.fill(new RoundRectangle2D.Double(x + scaleX, y + scaleY, getBlocLength - SPACE, getBlocLength - SPACE, ARCX, ARCY));
             graphics2D.setColor(cell.getForeground());
@@ -70,9 +70,6 @@ public class GamePanel extends JPanel implements KeyListener, Observer, IName{
         }
     }
 
-    public Model getModel(){
-        return this.model;
-    }
     public void setModel(Model model) {
         this.model = model;
         this.initModel();
@@ -88,9 +85,7 @@ public class GamePanel extends JPanel implements KeyListener, Observer, IName{
 
     @Override public void update(Object o) {
         this.model = (Model) o;
-        this.setFocusable(true);
         this.cells = this.model.getCells();
-        this.model.generate();
         this.repaint();
     }
 }

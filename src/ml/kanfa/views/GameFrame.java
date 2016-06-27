@@ -15,7 +15,7 @@ import java.io.*;
 public class GameFrame extends JFrame implements ActionListener, Observer, IName{
 
     private static final String ICON_PATH = "/ml/kanfa/icon/menu.png";
-    private static final String CURRENTD_DIR = "resources/flux/current.txt";
+    private static final String CURRENTD_DIR = "resources/flux/current.crnt";
     private static final String DIR = "resources/flux/";
 
     private JPanel container;
@@ -107,6 +107,7 @@ public class GameFrame extends JFrame implements ActionListener, Observer, IName
 
     private void restartGame() {
         this.model.initialize();
+        this.first = true;
         this.repaint();
     }
 
@@ -178,18 +179,20 @@ public class GameFrame extends JFrame implements ActionListener, Observer, IName
     }
 
     private JPopupMenu createPopupMenu(){
-        JPopupMenu popupMenu = new JPopupMenu();
-        JMenuItem qxq = new JMenuItem("4x4");
-        JMenuItem cxc = new JMenuItem("5x5");
-        JMenu menu = new JMenu("Grille");
-        menu.add(qxq);
-        menu.addSeparator();
-        menu.add(cxc);
-        qxq.setActionCommand(qxq.getText());
-        cxc.setActionCommand(cxc.getText());
-        qxq.addActionListener(this);
-        cxc.addActionListener(this);
-        popupMenu.add(menu);
+        if (this.popupMenu == null){
+            this.popupMenu = new JPopupMenu();
+            JMenuItem qxq = new JMenuItem("4x4");
+            JMenuItem cxc = new JMenuItem("5x5");
+            JMenu menu = new JMenu("Grille");
+            menu.add(qxq);
+            menu.addSeparator();
+            menu.add(cxc);
+            qxq.setActionCommand(qxq.getText());
+            cxc.setActionCommand(cxc.getText());
+            qxq.addActionListener(this);
+            cxc.addActionListener(this);
+            popupMenu.add(menu);
+        }
         return popupMenu;
     }
 
@@ -262,7 +265,7 @@ public class GameFrame extends JFrame implements ActionListener, Observer, IName
     }
 
 
-    public final class Worker extends SwingWorker<Void, Void>{
+    private final class Worker extends SwingWorker<Void, Void>{
 
         private Model m;
         private KeyboardFocusManager manager;
@@ -285,10 +288,10 @@ public class GameFrame extends JFrame implements ActionListener, Observer, IName
         @Override protected void done() {
             if (m.isOver() || m.isWin()){
                 if (first){
+                    opacity = 0.8f;
                     restart.setEnabled(false);
                     menuBtn.setEnabled(false);
                     this.disPatcher.setManager(this.manager);
-                    opacity = 0.8f;
                     GameFrame.this.repaint();
                     first = false;
                 }
@@ -309,7 +312,7 @@ public class GameFrame extends JFrame implements ActionListener, Observer, IName
         }
     }
 
-    public final class DisPatcher implements KeyEventDispatcher {
+    private final class DisPatcher implements KeyEventDispatcher {
 
         private Model model;
         private KeyboardFocusManager manager;
