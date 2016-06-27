@@ -1,19 +1,18 @@
-package controller;
+package ml.kanfa.controller;
 
-import model.Cell;
-import model.CellUtils;
-import model.Direction;
-import model.Model;
+import ml.kanfa.model.Cell;
+import ml.kanfa.model.CellUtils;
+import ml.kanfa.model.Direction;
+import ml.kanfa.model.Model;
 
 import java.awt.event.KeyEvent;
-import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
  * @uthor Kanfa.
  */
 
-public class Controller implements Serializable{
+public class Controller {
 
     private Model model;
     private Direction[] directions;

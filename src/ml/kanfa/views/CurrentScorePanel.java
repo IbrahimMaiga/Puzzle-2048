@@ -1,7 +1,7 @@
-package views;
+package ml.kanfa.views;
 
-import model.Animated;
-import model.Model;
+import ml.kanfa.model.Animated;
+import ml.kanfa.model.Model;
 
 import java.awt.*;
 
@@ -15,10 +15,14 @@ public class CurrentScorePanel extends ScorePanel implements Animated{
     }
 
     @Override public String getObserverName() {
-        return "obs_current";
+        return OBS_CURRENT;
     }
 
     @Override public boolean run() {
         return true;
+    }
+
+    @Override public String getTitle() {
+        return "SCORE";
     }
 }

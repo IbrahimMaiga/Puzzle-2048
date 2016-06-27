@@ -1,16 +1,17 @@
-package model;
+package ml.kanfa.model;
 
 import java.io.File;
-import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * @uthor Kanfa.
  */
-public class Model implements Observable, Serializable{
+public class Model implements Observable, IName{
 
-    private static final long serialVersionUID = 1L;
+    private static final String PACKAGE = "ml.kanfa";
+    private static final String DIR = "resources/flux/";
+    private static final String CONFIG = "config_";
 
     public Vector<Observer>      observers   = new Vector<>();
     private Map<String, Observer> m_observers = new HashMap<>();
@@ -21,6 +22,7 @@ public class Model implements Observable, Serializable{
     private Data data;
     private boolean isOver;
     private boolean win;
+    private boolean repaint;
 
     public Model(PlatformConfig config){
         this.config = config;
@@ -43,8 +45,7 @@ public class Model implements Observable, Serializable{
     private void setup(ArrayList<Cell> cells, int length){
         for (int i = 0; i < this.config.getSide(); i++){
             for (int j = 0; j < this.config.getSide(); j++){
-                Cell cell = new Cell(j, i);
-                cells.add(cell);
+                cells.add(new Cell(j, i));
             }
         }
 
@@ -56,10 +57,15 @@ public class Model implements Observable, Serializable{
     }
 
     public void initialize(){
-        this.setup(this.cells = new ArrayList<>(), 1);
+        this.cells = new ArrayList<>();
+        this.isOver = false;
+        this.win = false;
+        this.repaint = true;
+        this.setup(this.cells, 1);
         this.currentScore.setValue(0);
         this.currentScore.setCurrent(0);
-        this.notifyObservers(this, "obs_frame");
+        this.data.setCells(this.cells);
+        this.notifyObservers(this, OBS_FRAME);
     }
 
     private boolean win(ArrayList<Cell> cells){
@@ -108,31 +114,20 @@ public class Model implements Observable, Serializable{
         }
     }
 
-    @Override public synchronized void notifyObservers(Object o) {
+    @Override public void notifyObservers(Object o) {
         for (Observer observer : this.observers){
             (new Thread(() -> observer.update(o))).start();
         }
     }
 
-    public synchronized void notifyObservers(Object o, int ignore) {
-        int i = 0;
-        for (Observer observer : this.observers){
-            if (i == ignore) continue;
-            (new Thread(() -> observer.update(o))).start();
-            i++;
-        }
-    }
 
-    public synchronized void notifyObservers(Object o, String ignore) {
-        for (String key : this.m_observers.keySet()){
-            if (key.equals(ignore)) continue;
-            m_observers.get(key).update(o);
-        }
+    public void notifyObservers(Object o, String ignore) {
+        this.m_observers.keySet().stream().filter(key -> !key.equals(ignore)).forEach(key -> m_observers.get(key).update(o));
     }
 
     public void notifyWin(){
         this.win = true;
-        this.notifyObserver("obs_frame", this);
+        this.notifyObserver(OBS_FRAME, this);
     }
 
     private ArrayList<Cell> init(int bound, int length){
@@ -160,6 +155,7 @@ public class Model implements Observable, Serializable{
             this.generate(array);
         }
     }
+
     private void generate(ArrayList<Cell> cells){
         Random rand = new Random();
         Cell c = cells.get(rand.nextInt(cells.size()));
@@ -177,7 +173,7 @@ public class Model implements Observable, Serializable{
             case RIGHT: moveRight(); break;
             default:
         }
-        this.notifyObservers(this, "obs_frame");
+        this.notifyObservers(this, OBS_FRAME);
         if (this.win(this.cells)) this.notifyWin();
     }
 
@@ -214,6 +210,7 @@ public class Model implements Observable, Serializable{
         if (added){
             if (this.currentScore.greaterThan(this.bestScore)){
                 this.bestScore.setValue(this.currentScore.getValue());
+                this.bestScore.setCurrent(this.currentScore.getCurrent());
             }
         }
     }
@@ -264,14 +261,14 @@ public class Model implements Observable, Serializable{
         }
     }
 
-    public void loadConfig(String command, Serializer serializer) {
+    public void load(String command, Serializer serializer) {
         if (!this.config.getConfigName().equals(command)){
-            String filename = "config_" +command;
+            String filename = CONFIG + command;
             PlatformConfig c;
             CellConfig cellConfig;
             Model model = null;
             Data data;
-            if ((new File("resources/flux/" + command)).exists() ) {
+            if ((new File(DIR + command)).exists() ) {
                 this.data.setBestScore(this.bestScore);
                 this.data.setCurrentScore(this.currentScore);
                 data = (Data) serializer.deserialize(command);
@@ -280,8 +277,8 @@ public class Model implements Observable, Serializable{
             else {
                 try {
                     String className = Character.toString(filename.charAt(0)).toUpperCase().concat(filename.substring(1));
-                    Class cellConfigClass = Class.forName("model.Cell" + className);
-                    Class configClass = Class.forName("model." + className);
+                    Class cellConfigClass = Class.forName(PACKAGE + ".model.Cell" + className);
+                    Class configClass = Class.forName(PACKAGE + ".model." + className);
                     c = (PlatformConfig) configClass.newInstance();
                     cellConfig = (CellConfig)cellConfigClass.newInstance();
                     this.config = c;
@@ -291,7 +288,7 @@ public class Model implements Observable, Serializable{
                 catch (InstantiationException e) {e.printStackTrace();}
                 catch (IllegalAccessException e) {e.printStackTrace();}
             }
-            this.notifyObserver("obs_frame", model);
+            this.notifyObserver(OBS_FRAME, model);
         }
     }
 
@@ -359,7 +356,7 @@ public class Model implements Observable, Serializable{
 
     public void notifyGameOver() {
         this.isOver = true;
-        this.notifyObserver("obs_frame", this);
+        this.notifyObserver(OBS_FRAME, this);
     }
 
     public void setOver(boolean over) {
@@ -374,6 +371,8 @@ public class Model implements Observable, Serializable{
     }
 
     public Data getData(){
+        this.data.getCurrentScore().setValue(this.currentScore.getValue());
+        this.data.getBestScore().setValue(this.bestScore.getValue());
         return this.data;
     }
 
@@ -383,5 +382,13 @@ public class Model implements Observable, Serializable{
 
     public void setWin(boolean win){
         this.win = win;
+    }
+
+    public boolean canRepaint(){
+        return this.repaint;
+    }
+
+    public void setRepaint(boolean repaint){
+        this.repaint = repaint;
     }
 }

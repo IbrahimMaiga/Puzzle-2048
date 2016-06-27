@@ -1,12 +1,8 @@
-package views;
+package ml.kanfa.views;
 
-import model.Animated;
-import model.Model;
-import model.Observer;
-import model.Score;
+import ml.kanfa.model.*;
 
 import javax.swing.*;
-import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.util.concurrent.ExecutorService;
@@ -15,7 +11,7 @@ import java.util.concurrent.Executors;
 /**
  * @uthor Kanfa.
  */
-public abstract class ScorePanel extends JPanel implements Observer{
+public abstract class ScorePanel extends JPanel implements Observer, IName{
 
     private int width;
     private int height;
@@ -37,11 +33,17 @@ public abstract class ScorePanel extends JPanel implements Observer{
         this.score = new Score();
         this.start = Boolean.FALSE;
         this.width = 150;
-        this.height = 30;
+        this.height = 40;
         this.setPreferredSize(new Dimension(this.width, this.height));
+        this.setLayout(new BorderLayout(2, 2));
+        JLabel title = new JLabel(this.getTitle(), JLabel.CENTER);
+        title.setFont(new Font("SansSerif", Font.PLAIN, 12));
+        title.setForeground(Color.WHITE);
+        this.add(title, BorderLayout.NORTH);
     }
 
-    public void paint(Graphics graphics){
+    public void paintComponent(Graphics graphics){
+        super.paintComponent(graphics);
         Graphics2D graphics2D = (Graphics2D)graphics.create();
         graphics2D.setColor(this.background);
         graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -54,7 +56,7 @@ public abstract class ScorePanel extends JPanel implements Observer{
                 .getStringBounds(str, ((Graphics2D) graphics).getFontRenderContext());
         this.middle_height = (this.height / 2) + ((int)r.getHeight() / 2);
         graphics2D.drawString(str, (this.width / 2 - (int)r.getWidth()/2),
-                              (this.height / 2) + ((int)r.getHeight() / 2));
+                              (this.height / 2) + ((int)r.getHeight() / 2) + 2);
 
         if (this.start && this.score.getCurrent() != 0) {
             if (this instanceof Animated) graphics2D.setColor(Animated.animatedFontColor());
@@ -77,31 +79,37 @@ public abstract class ScorePanel extends JPanel implements Observer{
 
     @Override public void update(Object o) {
         this.model = (Model)o;
-        if (this.getClass().getSimpleName().toLowerCase().startsWith("current"))
+        if (this.getObserverName().equals(OBS_CURRENT))
             this.score = this.model.getCurrentScore();
         else
             this.score = this.model.getBestScore();
 
-        if (this.last.getValue() != this.score.getValue()){
+        if (this.last.getValue() != this.score.getValue()) {
             this.start = this.run();
-            this.repaint();
-            ExecutorService service = Executors.newSingleThreadExecutor();
-            service.execute(() -> {
-                while (this.middle_height - increment >= 0){
-                    increment++;
-                    this.repaint();
-                    try {Thread.sleep(50);}
-                    catch (InterruptedException e) {e.printStackTrace();}
-                }
-                this.start = false;
-                this.increment = 0;
-            });
+            if (this.score.getCurrent() != 0) {
+                this.repaint();
+                ExecutorService service = Executors.newSingleThreadExecutor();
+                service.execute(() -> {
+                    while (this.middle_height - increment >= 0) {
+                        increment++;
+                        this.repaint();
+                        try {
+                            Thread.sleep(50);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                    this.start = false;
+                    this.increment = 0;
+                });
 
-            service.shutdown();
-            this.last.setValue(this.score.getValue());
+                service.shutdown();
+                this.last.setValue(this.score.getValue());
+            }
         }
     }
 
     public abstract String getObserverName();
     public abstract boolean run();
+    public abstract String getTitle();
 }

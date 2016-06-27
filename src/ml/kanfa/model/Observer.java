@@ -1,4 +1,4 @@
-package model;
+package ml.kanfa.model;
 
 /**
  * @uthor Kanfa.

@@ -1,8 +1,8 @@
-package views;
+package ml.kanfa.views;
 
-import controller.Controller;
-import model.*;
-import model.Observer;
+import ml.kanfa.controller.Controller;
+import ml.kanfa.model.*;
+import ml.kanfa.model.Observer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -16,7 +16,7 @@ import java.util.*;
  * @uthor Kanfa.
  */
 
-public class GamePanel extends JPanel implements KeyListener, Observer{
+public class GamePanel extends JPanel implements KeyListener, Observer, IName{
 
     private ArrayList<Cell> cells;
     private Model model;
@@ -36,7 +36,7 @@ public class GamePanel extends JPanel implements KeyListener, Observer{
     }
 
     private void initModel(){
-        this.model.addObserver("obs_game", this);
+        this.model.addObserver(OBS_GAME, this);
         this.controller = new Controller(this.model);
         this.config = this.model.getConfig();
         this.getBlocLength = this.config.getBlocLength();
@@ -86,12 +86,9 @@ public class GamePanel extends JPanel implements KeyListener, Observer{
        this.controller.control(e.getKeyCode());
     }
 
-    public boolean isOver(){
-        return this.isOver;
-    }
-
     @Override public void update(Object o) {
         this.model = (Model) o;
+        this.setFocusable(true);
         this.cells = this.model.getCells();
         this.model.generate();
         this.repaint();

@@ -1,6 +1,6 @@
-package main;
+package ml.kanfa.main;
 
-import views.GameFrame;
+import ml.kanfa.views.GameFrame;
 
 import javax.swing.*;
 

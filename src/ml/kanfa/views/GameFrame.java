@@ -1,6 +1,6 @@
-package views;
+package ml.kanfa.views;
 
-import model.*;
+import ml.kanfa.model.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -12,7 +12,11 @@ import java.io.*;
  * @uthor Kanfa.
  */
 
-public class GameFrame extends JFrame implements ActionListener, Observer{
+public class GameFrame extends JFrame implements ActionListener, Observer, IName{
+
+    private static final String ICON_PATH = "/ml/kanfa/icon/menu.png";
+    private static final String CURRENTD_DIR = "resources/flux/current.txt";
+    private static final String DIR = "resources/flux/";
 
     private JPanel container;
     private JPanel content;
@@ -25,9 +29,10 @@ public class GameFrame extends JFrame implements ActionListener, Observer{
     private JButton restart;
     private Model model;
     private Serializer serializer;
-    private boolean changed;
     private Data data;
     private float opacity = 0;
+    private boolean first = true;
+    private KeyboardFocusManager currentManager;
 
     public GameFrame(){
         this.setTitle("Puzzle 2048");
@@ -35,7 +40,7 @@ public class GameFrame extends JFrame implements ActionListener, Observer{
         this.setResizable(false);
         this.serializer = new Serializer();
         this.getIfExist();
-        this.model.addObserver("obs_frame", this);
+        this.model.addObserver(OBS_FRAME, this);
         this.container = new JPanel(new BorderLayout());
         this.panel = new JPanel();
         this.gamePanel = new GamePanel(this.model);
@@ -49,12 +54,12 @@ public class GameFrame extends JFrame implements ActionListener, Observer{
         panel4.add(gameTitlePanel, BorderLayout.WEST);
         this.menuBtn = new JButton();
         this.menuBtn.setBackground(Color.WHITE);
-        this.menuBtn.setIcon(new ImageIcon(this.getClass().getResource("/icon/menu.png")));
+        this.menuBtn.setIcon(new ImageIcon(this.getClass().getResource(ICON_PATH)));
         this.menuBtn.setPreferredSize(new Dimension(40, 40));
         JPanel menuPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         menuPanel.add(menuBtn);
         panel4.add(menuPanel, BorderLayout.EAST);
-        this.restart = new JButton("Restart");
+        this.restart = new JButton("Rejouer");
         this.restart.setBackground(Color.RED);
         this.restart.setForeground(Color.WHITE);
         this.restart.setFocusPainted(false);
@@ -62,11 +67,17 @@ public class GameFrame extends JFrame implements ActionListener, Observer{
         this.menuBtn.setFocusable(false);
         this.restart.setFocusable(false);
 
+        this.currentManager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+
         this.popupMenu = this.createPopupMenu();
 
         this.menuBtn.addMouseListener(new MouseAdapter() {
             @Override public void mouseClicked(MouseEvent e) {
-                popupMenu.show(menuBtn, e.getX(), e.getY());
+                if (e.getButton() == MouseEvent.BUTTON1){
+                    if (!model.isOver() && !model.isWin()){
+                        popupMenu.show(menuBtn, e.getX(), e.getY());
+                    }
+                }
             }
         });
 
@@ -119,7 +130,7 @@ public class GameFrame extends JFrame implements ActionListener, Observer{
 
 
     private boolean exists(String filename){
-        File file = new File("resources/flux/" + filename);
+        File file = new File(DIR + filename);
         return file.exists() && file.isFile();
     }
 
@@ -137,7 +148,7 @@ public class GameFrame extends JFrame implements ActionListener, Observer{
     private void saveCurrent(String str){
         FileWriter fileWriter = null;
         try {
-            fileWriter = new FileWriter(new File("resources/flux/current.txt"));
+            fileWriter = new FileWriter(new File(CURRENTD_DIR));
             fileWriter.write(str);
         } catch (FileNotFoundException e) {e.printStackTrace();}
         catch (IOException e) {e.printStackTrace();}
@@ -152,7 +163,7 @@ public class GameFrame extends JFrame implements ActionListener, Observer{
         BufferedReader reader = null;
         String current=  "";
         try {
-            fileReader = new FileReader(new File("resources/flux/current.txt"));
+            fileReader = new FileReader(new File(CURRENTD_DIR));
             reader = new BufferedReader(fileReader);
             current = reader.readLine();
         } catch (FileNotFoundException e) {e.printStackTrace();}
@@ -183,20 +194,20 @@ public class GameFrame extends JFrame implements ActionListener, Observer{
     }
 
     private void initializeScorePanel(Model model, boolean removeAll){
-            this.currentScorePanel = new CurrentScorePanel(model, new Color(128, 128, 128), Color.RED);
-            this.bestScorePanel = new BestScorePanel(model, new Color(128, 128, 128), Color.BLACK);
-            JPanel panel1 = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-            JPanel panel2 = new JPanel();
-            panel1.add(currentScorePanel);
-            panel2.add(bestScorePanel);
-            if (removeAll) this.panel.removeAll();
-            this.panel.add(panel2);
-            this.panel.add(panel1);
-            if (removeAll){
-                this.panel.revalidate();
-            }
-            model.notifyObserver(bestScorePanel, model);
-            model.notifyObserver(currentScorePanel, model);
+        this.currentScorePanel = new CurrentScorePanel(model, new Color(128, 128, 128), Color.RED);
+        this.bestScorePanel = new BestScorePanel(model, new Color(128, 128, 128), Color.BLACK);
+        JPanel panel1 = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel panel2 = new JPanel();
+        panel1.add(currentScorePanel);
+        panel2.add(bestScorePanel);
+        if (removeAll) this.panel.removeAll();
+        this.panel.add(panel2);
+        this.panel.add(panel1);
+        if (removeAll){
+            this.panel.revalidate();
+        }
+        model.notifyObserver(bestScorePanel, model);
+        model.notifyObserver(currentScorePanel, model);
     }
 
     public Model getModel(){
@@ -204,41 +215,59 @@ public class GameFrame extends JFrame implements ActionListener, Observer{
     }
 
     @Override public void actionPerformed(ActionEvent e) {
-        this.changed = true;
         if (this.opacity != 0){
             this.opacity = 0;
             repaint();
         }
-        model.loadConfig(e.getActionCommand(), serializer);
+        model.load(e.getActionCommand(), serializer);
     }
 
     @Override public void paint(Graphics g) {
         super.paint(g);
         Graphics2D graphics2D = (Graphics2D)g;
         graphics2D.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        graphics2D.setRenderingHint(RenderingHints.KEY_DITHERING, RenderingHints.VALUE_DITHER_ENABLE);
         graphics2D.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, this.opacity));
         g.setColor(Color.WHITE);
         graphics2D.fillRect(0, 0, this.getPreferredSize().width, this.getPreferredSize().height);
-        String txt = this.model.isOver() ? Text.getGameOverText() : this.model.isWin() ? Text.getWinText() : "";
-        boolean canDraw = this.model.isOver() || this.model.isWin();
-        if (canDraw){
-            graphics2D.setFont(new Font("SansSerif", Font.BOLD, 14));
-            graphics2D.setColor(Color.BLACK);
-            Rectangle2D bound = graphics2D.getFont().getStringBounds(txt, graphics2D.getFontRenderContext());
-            graphics2D.drawString(txt, (this.getPreferredSize().width / 2 - (int)bound.getWidth() / 2),
-                                  (this.getPreferredSize().height / 2 - (int)bound.getHeight() / 2));
+        String str[] = this.model.isOver() ? Text.getGameOverText() : this.model.isWin() ? Text.getWinText() : new String[]{"", ""};
+        Rectangle2D bound;
+        graphics2D.setFont(new Font("Sans Serif", Font.PLAIN, 14));
+        graphics2D.setColor(Color.BLACK);
+        bound = graphics2D.getFont().getStringBounds(str[0], graphics2D.getFontRenderContext());
+        graphics2D.drawString(str[0], (this.getPreferredSize().width / 2 - (int)bound.getWidth() / 2),
+                              (this.getPreferredSize().height / 2 - (int)bound.getHeight() / 2));
+        bound = graphics2D.getFont().getStringBounds(str[1], graphics2D.getFontRenderContext());
+        graphics2D.drawString(str[1], (this.getPreferredSize().width / 2 - (int)bound.getWidth() / 2),
+                              (this.getPreferredSize().height / 2 - (int)bound.getHeight() / 2 + 40));
+        if (model.isOver()){
+            g.setFont(new Font("Verdana", Font.BOLD, 28));
+            g.setColor(Color.ORANGE);
+            String score = String.valueOf(model.getCurrentScore().getValue()) + " pts";
+            bound = graphics2D.getFont().getStringBounds(score, graphics2D.getFontRenderContext());
+            graphics2D.drawString(score, (this.getPreferredSize().width / 2 - (int)bound.getWidth() / 2),
+                                  (this.getPreferredSize().height / 2 - (int)bound.getHeight() / 2) + 140);
         }
+
     }
 
     @Override public void update(Object o) {
-        (new Worker((Model)o)).execute();
+        Model ml = (Model)o;
+        if ((ml.isOver() || ml.isWin()) && ml.canRepaint()){
+            this.repaint();
+            ml.setRepaint(false);
+
+        }else {
+            (new Worker(ml)).execute();
+        }
     }
 
+
     public final class Worker extends SwingWorker<Void, Void>{
+
         private Model m;
         private KeyboardFocusManager manager;
         private DisPatcher disPatcher;
+
         public Worker(Model m){
             this.m = m;
             this.manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
@@ -246,18 +275,28 @@ public class GameFrame extends JFrame implements ActionListener, Observer{
         }
 
         @Override protected Void doInBackground() throws Exception {
-            serializer.serialize(model.getConfig().getConfigName(), model.getData());
-            saveCurrent(model.getConfig().getConfigName());
+            if (!model.isOver() && !model.isWin()){
+                serializer.serialize(model.getConfig().getConfigName(), model.getData());
+                saveCurrent(model.getConfig().getConfigName());
+            }
             return null;
         }
 
         @Override protected void done() {
             if (m.isOver() || m.isWin()){
-                this.manager.addKeyEventDispatcher(this.disPatcher);
-                opacity = 0.8f;
-                GameFrame.this.repaint();
+                if (first){
+                    restart.setEnabled(false);
+                    menuBtn.setEnabled(false);
+                    this.disPatcher.setManager(this.manager);
+                    opacity = 0.8f;
+                    GameFrame.this.repaint();
+                    first = false;
+                }
+                return;
             }
-            m.addObserver("obs_frame", GameFrame.this);
+
+            this.disPatcher.setManager(currentManager);
+            m.addObserver(OBS_FRAME, GameFrame.this);
 
             gamePanel = new GamePanel(m);
             initializeScorePanel(m, true);
@@ -266,7 +305,6 @@ public class GameFrame extends JFrame implements ActionListener, Observer{
             container.revalidate();
             giveFocus();
 
-            changed = !changed;
             model = this.m;
         }
     }
@@ -274,28 +312,46 @@ public class GameFrame extends JFrame implements ActionListener, Observer{
     public final class DisPatcher implements KeyEventDispatcher {
 
         private Model model;
+        private KeyboardFocusManager manager;
+
         public DisPatcher(Model model){
             this.model = model;
         }
+
         @Override public boolean dispatchKeyEvent(KeyEvent e) {
             if (e.getID() == KeyEvent.KEY_RELEASED){
                 if (model.isOver() || model.isWin()){
-                    GameFrame.this.opacity = 0;
                     if (model.isOver()){
                         if (e.getKeyCode() == KeyEvent.VK_SPACE){
+                            GameFrame.this.opacity = 0;
+                            restart.setEnabled(true);
+                            menuBtn.setEnabled(true);
+                            first = true;
                             GameFrame.this.restartGame();
-                            model.setOver(false);
                         }
                     }
                     else {
                         if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+                            GameFrame.this.opacity = 0;
                             model.setWin(false);
+                            restart.setEnabled(true);
+                            menuBtn.setEnabled(true);
+                            first = true;
+                            GameFrame.this.repaint();
                         }
                     }
-                    GameFrame.this.repaint();
                 }
             }
             return false;
+        }
+
+        public void setManager(KeyboardFocusManager manager){
+            if (manager == null){
+                this.manager.removeKeyEventDispatcher(this);
+                return;
+            }
+            this.manager = manager;
+            this.manager.addKeyEventDispatcher(this);
         }
     }
 }

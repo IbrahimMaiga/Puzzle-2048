@@ -1,25 +1,26 @@
-package model;
+package ml.kanfa.model;
 
 import java.awt.*;
 
 /**
  * @uthor Kanfa.
  */
-public class Config_4x4 extends PlatformConfig{
+
+public class Config_5x5 extends PlatformConfig{
 
     @Override public int getSide() {
-        return 4;
+        return 5;
     }
 
     @Override public int getBlocLength() {
-        return 98;
+        return 78;
     }
 
     @Override public Color getBackground() {
-        return new Color(84, 98, 101);
+        return Color.WHITE;
     }
 
     @Override public String getConfigName() {
-        return "4x4";
+        return "5x5";
     }
 }

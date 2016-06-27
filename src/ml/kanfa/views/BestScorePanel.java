@@ -1,6 +1,6 @@
-package views;
+package ml.kanfa.views;
 
-import model.Model;
+import ml.kanfa.model.Model;
 
 import java.awt.*;
 
@@ -14,10 +14,14 @@ public class BestScorePanel extends ScorePanel{
     }
 
     @Override public String getObserverName() {
-        return "obs_best";
+        return OBS_BEST;
     }
 
     @Override public boolean run() {
         return false;
+    }
+
+    @Override public String getTitle() {
+        return "BEST";
     }
 }

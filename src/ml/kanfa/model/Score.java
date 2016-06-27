@@ -1,4 +1,4 @@
-package model;
+package ml.kanfa.model;
 
 import java.io.Serializable;
 
