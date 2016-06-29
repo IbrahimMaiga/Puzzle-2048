@@ -8,6 +8,8 @@ import java.io.Serializable;
  */
 public abstract class CellConfig implements Serializable{
 
+    private static final long serialVersionUID = 1L;
+
     public abstract Color getBackground(int value);
 
     public Color getForeground(int value){

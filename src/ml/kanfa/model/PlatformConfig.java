@@ -8,6 +8,8 @@ import java.io.Serializable;
  */
 public abstract class PlatformConfig implements Serializable {
 
+    private static final long serialVersionUID = 1L;
+
     public PlatformConfig(){}
 
     public abstract int getSide();

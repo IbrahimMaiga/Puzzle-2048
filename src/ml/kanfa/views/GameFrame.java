@@ -92,7 +92,6 @@ public class GameFrame extends JFrame implements ActionListener, Observer, IName
         this.content.add(restartPanel, BorderLayout.SOUTH);
         addComponents();
         this.setContentPane(this.container);
-        this.pack();
 
         this.addWindowListener(new WindowAdapter() {
             @Override public void windowClosing(WindowEvent e) {
@@ -101,7 +100,8 @@ public class GameFrame extends JFrame implements ActionListener, Observer, IName
                 saveCurrent(current);
             }
         });
-
+        this.pack();
+        this.setLocationRelativeTo(null);
         this.setVisible(true);
     }
 
@@ -337,6 +337,7 @@ public class GameFrame extends JFrame implements ActionListener, Observer, IName
                         if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                             GameFrame.this.opacity = 0;
                             model.setWin(false);
+
                             restart.setEnabled(true);
                             menuBtn.setEnabled(true);
                             first = true;
