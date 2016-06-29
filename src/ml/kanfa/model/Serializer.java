@@ -23,10 +23,13 @@ public class Serializer implements Serializable{
         this(null);
     }
 
-    public void serialize(String filename, Data data){
+    public void serialize(Object data){
+        this.serialize(this.filename, data);
+    }
+
+    public void serialize(String filename, Object data){
 
         ObjectOutputStream oos = null;
-        data.getCurrentScore().setCurrent(0);
         File file = new File(this.dir + filename);
         try {
             Files.deleteIfExists(Paths.get(this.dir, filename));

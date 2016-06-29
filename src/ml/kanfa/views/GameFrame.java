@@ -337,6 +337,7 @@ public class GameFrame extends JFrame implements ActionListener, Observer, IName
                         if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                             GameFrame.this.opacity = 0;
                             model.setWin(false);
+
                             restart.setEnabled(true);
                             menuBtn.setEnabled(true);
                             first = true;

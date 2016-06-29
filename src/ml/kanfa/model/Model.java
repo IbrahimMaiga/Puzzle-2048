@@ -23,7 +23,6 @@ public class Model implements Observable, IName{
     private boolean isOver;
     private boolean win;
     private boolean repaint;
-    private int count = 0;
 
     public Model(PlatformConfig config){
         this.config = config;
@@ -55,11 +54,11 @@ public class Model implements Observable, IName{
         this.isOver = false;
         this.win = false;
         this.repaint = true;
-        this.count = 0;
         this.execute();
         this.currentScore.setValue(0);
         this.currentScore.setCurrent(0);
         this.data.setCells(this.cells);
+        this.data.setWin(false);
         this.notifyObservers(this, OBS_FRAME);
     }
 
@@ -162,6 +161,7 @@ public class Model implements Observable, IName{
             this.notifyObservers(this, OBS_FRAME);
             this.win = this.check(this.cells);
             if (this.win){
+                this.data.setWin(true);
                 this.notifyWin();
                 b = true;
             }
@@ -173,14 +173,15 @@ public class Model implements Observable, IName{
 
     private boolean check(ArrayList<Cell> cells){
         boolean b = false;
+        int count = 0;
         for (Cell cell : cells){
-            if (cell.getValue() == 16){
+            if (cell.getValue() == 2048){
                 b =  true;
                 count++;
             }
         }
 
-        return b && (count == 1);
+        return (b && (count == 1)) && !this.data.isWin();
     }
 
     private void moveUp(){
@@ -374,6 +375,7 @@ public class Model implements Observable, IName{
     public Data getData(){
         this.data.getCurrentScore().setValue(this.currentScore.getValue());
         this.data.getBestScore().setValue(this.bestScore.getValue());
+        this.data.setCells(this.cells);
         return this.data;
     }
 
