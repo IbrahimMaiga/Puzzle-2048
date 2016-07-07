@@ -75,56 +75,6 @@ public class Model implements Observable, IName{
         })).start();
     }
 
-    @Override public void addObserver(Observer o) {
-        this.addObserver(o.getClass().getName(), o);
-    }
-
-    @Override public void addObserver(String name, Observer o) {
-        if (o != null){
-            this.observers.add(o);
-            this.m_observers.putIfAbsent(name, o);
-        }
-    }
-
-    @Override public void removeObserver(Observer o) {
-        this.removeObserver(o.getClass().getName());
-    }
-
-    @Override public void removeObserver(String name) {
-        if (this.m_observers.containsKey(name)){
-            this.observers.remove(this.m_observers.get(name));
-            this.m_observers.remove(name);
-        }
-    }
-
-    @Override public void notifyObserver(Observer observer, Object o) {
-        observer.update(o);
-    }
-
-    public void notifyObserver(Observer observer) {
-        observer.update(this);
-    }
-
-    @Override public void notifyObserver(String name, Object o) {
-        if (this.m_observers.containsKey(name)){
-            this.m_observers.get(name).update(o);
-        }
-    }
-
-    @Override public void notifyObservers(Object o) {
-        for (Observer observer : this.observers){
-            observer.update(o);
-        }
-    }
-
-    public void notifyObservers(Object o, String... ignores) {
-        this.m_observers.keySet().stream().filter(key -> !Arrays.asList(ignores).contains(key)).forEach(key -> m_observers.get(key).update(o));
-    }
-
-    public void notifyWin(){
-        this.notifyObserver(OBS_FRAME, this);
-    }
-
     private ArrayList<Cell> emptyCell(){
         ArrayList<Cell> cells = new ArrayList<>();
         cells.addAll(this.cells.stream().filter(c -> c.getValue() == 0).collect(Collectors.toList()));
@@ -255,13 +205,9 @@ public class Model implements Observable, IName{
             return cell;
         }
         else{
-            if (cell.get(index).isEmpty())
-                cell.get(index).add(cell.get(searchIndex(cell, d, index)));
-            else{
-                int a = searchIndex(cell, d, searchEmpty(cell, d, index));
-                if (a > - 1){
-                    cell.get(searchEmpty(cell, d, index)).add(cell.get(searchIndex(cell, d, a)));
-                }
+            int a = searchIndex(cell, d, searchEmpty(cell, d, index));
+            if (a > - 1){
+                cell.get(searchEmpty(cell, d, index)).add(cell.get(searchIndex(cell, d, a)));
             }
             return adjust(cell, d, index + d);
         }
@@ -394,4 +340,55 @@ public class Model implements Observable, IName{
     public void setRepaint(boolean repaint){
         this.repaint = repaint;
     }
+
+    @Override public void addObserver(Observer o) {
+        this.addObserver(o.getClass().getName(), o);
+    }
+
+    @Override public void addObserver(String name, Observer o) {
+        if (o != null){
+            this.observers.add(o);
+            this.m_observers.putIfAbsent(name, o);
+        }
+    }
+
+    @Override public void removeObserver(Observer o) {
+        this.removeObserver(o.getClass().getName());
+    }
+
+    @Override public void removeObserver(String name) {
+        if (this.m_observers.containsKey(name)){
+            this.observers.remove(this.m_observers.get(name));
+            this.m_observers.remove(name);
+        }
+    }
+
+    @Override public void notifyObserver(Observer observer, Object o) {
+        observer.update(o);
+    }
+
+    public void notifyObserver(Observer observer) {
+        observer.update(this);
+    }
+
+    @Override public void notifyObserver(String name, Object o) {
+        if (this.m_observers.containsKey(name)){
+            this.m_observers.get(name).update(o);
+        }
+    }
+
+    @Override public void notifyObservers(Object o) {
+        for (Observer observer : this.observers){
+            observer.update(o);
+        }
+    }
+
+    public void notifyObservers(Object o, String... ignores) {
+        this.m_observers.keySet().stream().filter(key -> !Arrays.asList(ignores).contains(key)).forEach(key -> m_observers.get(key).update(o));
+    }
+
+    public void notifyWin(){
+        this.notifyObserver(OBS_FRAME, this);
+    }
+
 }
