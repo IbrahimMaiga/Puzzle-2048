@@ -12,7 +12,7 @@ public class CellUtils {
 
     private CellUtils(){}
 
-    public static ArrayList<ArrayList<Cell>> toArray(ArrayList<Cell> cells){
+    public static ArrayList<ArrayList<Cell>> toArray(final ArrayList<Cell> cells){
         ArrayList<ArrayList<Cell>> arrays = new ArrayList<>();
         ArrayList<Cell> array = new ArrayList<>();
         for (int i = 0; i < cells.size(); i++){
@@ -25,7 +25,7 @@ public class CellUtils {
         return arrays;
     }
 
-    public static ArrayList<ArrayList<Cell>> reverseArray(ArrayList<Cell> cells){
+    public static ArrayList<ArrayList<Cell>> reverseArray(final ArrayList<Cell> cells){
         ArrayList<ArrayList<Cell>> arrays = new ArrayList<>();
         int side = (int)Math.sqrt(cells.size());
         for (int i = 0; i < side; i ++){
@@ -46,7 +46,7 @@ public class CellUtils {
         return d == 1 ? i < length : d == -1 ? i >= b : false;
     }
 
-    public static final int searchEmpty(ArrayList<Cell> cell, int d, int index){
+    public static final int searchEmpty(final ArrayList<Cell> cell, int d, int index){
         int emptyIndex = -1;
         for (int i = index; iterate(cell.size(), i, d); i += d){
             if (cell.get(i).isEmpty()){
@@ -57,7 +57,7 @@ public class CellUtils {
         return emptyIndex;
     }
 
-    public static Set<Integer> searchAllEmpty(ArrayList<Cell> cells){
+    public static Set<Integer> searchAllEmpty(final ArrayList<Cell> cells){
         Set<Integer> set = new HashSet<>();
         int index = 0;
         for (Cell cell :cells){
@@ -69,7 +69,7 @@ public class CellUtils {
         return set;
     }
 
-    public static Set<Integer> searchAll(ArrayList<Cell> cells){
+    public static Set<Integer> searchAll(final ArrayList<Cell> cells){
         Set<Integer> set = new HashSet<>();
         int index = 0;
         for (Cell cell :cells){

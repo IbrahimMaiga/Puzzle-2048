@@ -31,7 +31,7 @@ public class Controller {
         }
     }
 
-    private boolean isFill(ArrayList<Cell> cells){
+    private boolean isFill(final ArrayList<Cell> cells){
         boolean complete = true;
 
         for (Cell cell : cells){

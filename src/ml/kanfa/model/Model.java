@@ -12,10 +12,13 @@ public class Model implements Observable, IName{
     private static final String PACKAGE = "ml.kanfa";
     private static final String DIR = "resources/flux/";
     private static final String CONFIG = "config_";
+    private static final int GENERATION_LENGTH = 2;
+    private static final long WAIT_TIME = 200;
 
-    private Vector<Observer>      observers   = new Vector<>();
+    private Vector<Observer> observers   = new Vector<>();
     private Map<String, Observer> m_observers = new HashMap<>();
     private ArrayList<Cell> cells;
+    private final Cell cell = new Cell();
     private Score currentScore;
     private Score bestScore;
     private PlatformConfig config;
@@ -45,9 +48,21 @@ public class Model implements Observable, IName{
     private void setup(ArrayList<Cell> cells){
         for (int i = 0; i < this.config.getSide(); i++){
             for (int j = 0; j < this.config.getSide(); j++){
-                cells.add(new Cell(j, i));
+                cells.add(clone(cell, i, j));
             }
         }
+    }
+
+    private Cell clone(final Cell cell, int i, int j){
+        Cell c = null;
+        try {
+            c = cell.clone();
+            c.set(j, i);
+        }
+        catch (CloneNotSupportedException e) {
+            e.printStackTrace();
+        }
+        return c;
     }
 
     public void initialize(){
@@ -66,9 +81,9 @@ public class Model implements Observable, IName{
         this.cells = new ArrayList<>();
         this.setup(this.cells);
         (new Thread(() -> {
-            for (int i = 0; i < 2; i++){
+        for (int i = 0; i < GENERATION_LENGTH; i++){
                 this.generate();
-                try {Thread.sleep(200);}
+                try {Thread.sleep(WAIT_TIME);}
                 catch (InterruptedException e) {}
                 this.notifyObserver(OBS_GAME, this);
             }
@@ -88,8 +103,8 @@ public class Model implements Observable, IName{
         }
     }
 
-    private void generate(ArrayList<Cell> cells){
-        Random rand = new Random();
+    private void generate(final ArrayList<Cell> cells){
+        final Random rand = new Random();
         Cell c = cells.get(rand.nextInt(cells.size()));
         this.cells.stream().filter(cell -> (cell.getPosX() == c.getPosX() &&
                 cell.getPosY() == c.getPosY())).forEach(
@@ -97,7 +112,7 @@ public class Model implements Observable, IName{
         );
     }
 
-    public void move(Direction d) {
+    public void move(final Direction d) {
         boolean b = false;
         if (!this.win){
             switch (d){
@@ -121,13 +136,13 @@ public class Model implements Observable, IName{
         }
     }
 
-    private boolean check(ArrayList<Cell> cells){
+    private boolean check(final ArrayList<Cell> cells){
         boolean b = false;
         int count = 0;
         for (Cell cell : cells){
             if (cell.getValue() == 2048){
                 b =  true;
-                count++;
+                if (count <= 1) count++;
             }
         }
 
@@ -146,7 +161,7 @@ public class Model implements Observable, IName{
         this.moveLeft(this.toArray());
     }
 
-    private void moveLeft(ArrayList<ArrayList<Cell>> arrays){
+    private void moveLeft(final ArrayList<ArrayList<Cell>> arrays){
         boolean added = false;
         for (ArrayList<Cell> arrayList : arrays){
             arrayList = adjustLeft(arrayList);
@@ -175,7 +190,7 @@ public class Model implements Observable, IName{
         this.moveRight(this.toArray());
     }
 
-    private void moveRight(ArrayList<ArrayList<Cell>> arrays){
+    private void moveRight(final ArrayList<ArrayList<Cell>> arrays){
         boolean added = false;
         for (ArrayList<Cell> arrayList : arrays){
             arrayList = adjustRight(arrayList);
@@ -190,6 +205,7 @@ public class Model implements Observable, IName{
         }
         this.checkAndAdd(added);
     }
+
     private ArrayList<Cell> adjustLeft(ArrayList<Cell> cell){
         return adjust(cell, 1, 0);
     }
@@ -198,7 +214,7 @@ public class Model implements Observable, IName{
         return adjust(cell, -1, cell.size() - 1);
     }
 
-    private ArrayList<Cell> adjust(ArrayList<Cell> cell, int d, int index){
+    private ArrayList<Cell> adjust(final ArrayList<Cell> cell, int d, int index){
         if (index < 0 || index >= cell.size() ||
                 searchIndex(cell, d, index) == - 1 ||
                 searchEmpty(cell, d, index) == -1){
@@ -206,14 +222,14 @@ public class Model implements Observable, IName{
         }
         else{
             int a = searchIndex(cell, d, searchEmpty(cell, d, index));
-            if (a > - 1){
+            if (a > -1){
                 cell.get(searchEmpty(cell, d, index)).add(cell.get(searchIndex(cell, d, a)));
             }
             return adjust(cell, d, index + d);
         }
     }
 
-    public void load(String command, Serializer serializer) {
+    public void load(final String command, final Serializer serializer) {
         if (!this.config.getConfigName().equals(command)){
             String filename = CONFIG + command;
             PlatformConfig c;
@@ -244,7 +260,7 @@ public class Model implements Observable, IName{
         }
     }
 
-    private Model getInstance(PlatformConfig c, CellConfig cellConfig){
+    private Model getInstance(final PlatformConfig c, final CellConfig cellConfig){
         Model model = new Model(c);
         for (Cell cell : model.getCells()){
             cell.setConfig(cellConfig);

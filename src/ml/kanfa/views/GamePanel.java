@@ -53,7 +53,7 @@ public class GamePanel extends JPanel implements KeyListener, Observer, IName{
         double scaleX = (this.getPreferredSize().width - ((getBlocLength - 1) * this.config.getSide())) / 2.0;
         double scaleY = (this.getPreferredSize().height - ((getBlocLength - 1) * this.config.getSide())) / 2.0;
 
-        for (Cell cell : this.cells){
+        for (final Cell cell : this.cells){
             int x = cell.getPosX() * getBlocLength;
             int y = cell.getPosY() * getBlocLength;
             graphics2D.setFont(new Font("Arial", Font.PLAIN, 24));

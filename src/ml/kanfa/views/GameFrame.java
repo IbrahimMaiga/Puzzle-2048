@@ -132,7 +132,7 @@ public class GameFrame extends JFrame implements ActionListener, Observer, IName
 
     private boolean exists(String filename){
         File file = new File(DIR + filename);
-        return file.exists() && file.isFile();
+        return file.exists() && !file.isDirectory();
     }
 
 
