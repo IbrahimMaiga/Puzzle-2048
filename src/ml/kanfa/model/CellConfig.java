@@ -6,7 +6,8 @@ import java.io.Serializable;
 /**
  * @uthor Kanfa.
  */
-public abstract class CellConfig implements Serializable{
+
+public abstract class CellConfig implements Serializable, Cloneable{
 
     private static final long serialVersionUID = 1L;
 
@@ -23,5 +24,9 @@ public abstract class CellConfig implements Serializable{
 
     public Font getFont(int value){
         return new Font("Verdana", Font.PLAIN, 30 - (String.valueOf(value).length() * 2));
+    }
+
+    public CellConfig clone() throws CloneNotSupportedException {
+        return (CellConfig)super.clone();
     }
 }
