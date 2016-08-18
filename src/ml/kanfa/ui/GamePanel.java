@@ -1,8 +1,8 @@
-package ml.kanfa.views;
+package ml.kanfa.ui;
 
 import ml.kanfa.controller.Controller;
-import ml.kanfa.model.*;
-import ml.kanfa.model.Observer;
+import ml.kanfa.engine.*;
+import ml.kanfa.engine.Observer;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,7 +13,7 @@ import java.awt.geom.RoundRectangle2D;
 import java.util.*;
 
 /**
- * @uthor Kanfa.
+ * @uthor Ibrahim Maïga.
  */
 
 public class GamePanel extends JPanel implements KeyListener, Observer, IName{

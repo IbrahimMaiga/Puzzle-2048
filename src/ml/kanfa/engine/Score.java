@@ -1,9 +1,9 @@
-package ml.kanfa.model;
+package ml.kanfa.engine;
 
 import java.io.Serializable;
 
 /**
- * @uthor Kanfa.
+ * @uthor Ibrahim Maïga.
  */
 
 public class Score implements Serializable {

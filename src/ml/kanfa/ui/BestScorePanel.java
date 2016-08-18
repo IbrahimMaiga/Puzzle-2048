@@ -1,11 +1,11 @@
-package ml.kanfa.views;
+package ml.kanfa.ui;
 
-import ml.kanfa.model.Model;
+import ml.kanfa.engine.Model;
 
 import java.awt.*;
 
 /**
- * @uthor Kanfa.
+ * @uthor Ibrahim Maïga.
  */
 public class BestScorePanel extends ScorePanel{
 

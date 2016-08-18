@@ -1,7 +1,7 @@
-package ml.kanfa.model;
+package ml.kanfa.engine;
 
 /**
- * @uthor Kanfa.
+ * @uthor Ibrahim Maïga.
  */
 public enum Direction {
         UP,

@@ -1,11 +1,11 @@
-package ml.kanfa.model;
+package ml.kanfa.engine;
 
 import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * @uthor Kanfa.
+ * @uthor Ibrahim Maïga.
  */
 public class Model implements Observable, IName{
 
@@ -245,11 +245,10 @@ public class Model implements Observable, IName{
             else {
                 try {
                     String className = Character.toString(filename.charAt(0)).toUpperCase().concat(filename.substring(1));
-                    Class cellConfigClass = Class.forName(PACKAGE + ".model.Cell" + className);
-                    Class configClass = Class.forName(PACKAGE + ".model." + className);
+                    Class cellConfigClass = Class.forName(PACKAGE + ".engine.Cell" + className);
+                    Class configClass = Class.forName(PACKAGE + ".engine." + className);
                     c = (PlatformConfig) configClass.newInstance();
                     cellConfig = (CellConfig)cellConfigClass.newInstance();
-                    this.config = c;
                     model = this.getInstance(c, cellConfig);
                 }
                 catch (ClassNotFoundException e) {e.printStackTrace();}
@@ -265,7 +264,6 @@ public class Model implements Observable, IName{
         for (Cell cell : model.getCells()){
             cell.setConfig(cellConfig);
         }
-        this.cells = model.getCells();
         return model;
     }
 

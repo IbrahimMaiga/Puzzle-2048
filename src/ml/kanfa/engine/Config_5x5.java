@@ -1,9 +1,9 @@
-package ml.kanfa.model;
+package ml.kanfa.engine;
 
 import java.awt.*;
 
 /**
- * @uthor Kanfa.
+ * @uthor Ibrahim Maïga.
  */
 
 public class Config_5x5 extends PlatformConfig{

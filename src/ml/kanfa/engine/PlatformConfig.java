@@ -1,10 +1,10 @@
-package ml.kanfa.model;
+package ml.kanfa.engine;
 
 import java.awt.*;
 import java.io.Serializable;
 
 /**
- * @uthor Kanfa.
+ * @uthor Ibrahim Maïga.
  */
 public abstract class PlatformConfig implements Serializable {
 

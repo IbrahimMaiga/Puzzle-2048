@@ -1,4 +1,4 @@
-package ml.kanfa.model;
+package ml.kanfa.engine;
 
 /**
  * @author Ibrahim Maïga.

@@ -1,9 +1,9 @@
-package ml.kanfa.model;
+package ml.kanfa.engine;
 
 import java.util.*;
 
 /**
- * @uthor Kanfa.
+ * @uthor Ibrahim Maïga.
  */
 
 public class Generator {

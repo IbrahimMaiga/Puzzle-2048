@@ -1,6 +1,6 @@
-package ml.kanfa.views;
+package ml.kanfa.ui;
 
-import ml.kanfa.model.*;
+import ml.kanfa.engine.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,7 +9,7 @@ import java.awt.geom.Rectangle2D;
 import java.io.*;
 
 /**
- * @uthor Kanfa.
+ * @uthor Ibrahim Maïga.
  */
 
 public class GameFrame extends JFrame implements ActionListener, Observer, IName{
@@ -323,8 +323,8 @@ public class GameFrame extends JFrame implements ActionListener, Observer, IName
 
         @Override public boolean dispatchKeyEvent(KeyEvent e) {
             if (e.getID() == KeyEvent.KEY_RELEASED){
-                if (model.isOver() || model.isWin()){
-                    if (model.isOver()){
+                if (this.model.isOver() || model.isWin()){
+                    if (this.model.isOver()){
                         if (e.getKeyCode() == KeyEvent.VK_SPACE){
                             GameFrame.this.opacity = 0;
                             restart.setEnabled(true);
@@ -336,7 +336,7 @@ public class GameFrame extends JFrame implements ActionListener, Observer, IName
                     else {
                         if (e.getKeyCode() == KeyEvent.VK_ENTER) {
                             GameFrame.this.opacity = 0;
-                            model.setWin(false);
+                            this.model.setWin(false);
 
                             restart.setEnabled(true);
                             menuBtn.setEnabled(true);

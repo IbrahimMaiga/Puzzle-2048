@@ -1,11 +1,11 @@
-package ml.kanfa.model;
+package ml.kanfa.engine;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 /**
- * @uthor Kanfa.
+ * @uthor Ibrahim Maïga.
  */
 public class Serializer implements Serializable{
 

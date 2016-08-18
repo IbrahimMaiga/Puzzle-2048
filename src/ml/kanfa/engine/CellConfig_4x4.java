@@ -1,12 +1,12 @@
-package ml.kanfa.model;
+package ml.kanfa.engine;
 
 import java.awt.*;
 
 /**
- * @uthor Kanfa.
+ * @uthor Ibrahim Maïga.
  */
-public class CellConfig_5x5 extends CellConfig{
 
+public class CellConfig_4x4 extends CellConfig{
 
     @Override public Color getBackground(int value) {
         switch (value){
@@ -43,8 +43,9 @@ public class CellConfig_5x5 extends CellConfig{
             case 65536:
                 return new Color(112, 134, 218);
             case 131072:
-                return new Color(98, 176, 146);
+                return new Color(88, 99, 176);
             default: return new Color(84, 98, 101);
         }
     }
+
 }

@@ -1,11 +1,11 @@
-package ml.kanfa.model;
+package ml.kanfa.engine;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- * @uthor Kanfa.
+ * @uthor Ibrahim Maïga.
  */
 public class CellUtils {
 

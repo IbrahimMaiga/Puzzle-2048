@@ -1,6 +1,6 @@
-package ml.kanfa.views;
+package ml.kanfa.ui;
 
-import ml.kanfa.model.*;
+import ml.kanfa.engine.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -9,7 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * @uthor Kanfa.
+ * @uthor Ibrahim Maïga.
  */
 public abstract class ScorePanel extends JPanel implements Observer, IName{
 

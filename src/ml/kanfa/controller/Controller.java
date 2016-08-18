@@ -1,15 +1,15 @@
 package ml.kanfa.controller;
 
-import ml.kanfa.model.Cell;
-import ml.kanfa.model.CellUtils;
-import ml.kanfa.model.Direction;
-import ml.kanfa.model.Model;
+import ml.kanfa.engine.Cell;
+import ml.kanfa.engine.CellUtils;
+import ml.kanfa.engine.Direction;
+import ml.kanfa.engine.Model;
 
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 
 /**
- * @uthor Kanfa.
+ * @uthor Ibrahim Maïga.
  */
 
 public class Controller {

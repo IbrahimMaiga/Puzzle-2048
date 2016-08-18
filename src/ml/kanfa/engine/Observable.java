@@ -1,8 +1,8 @@
-package ml.kanfa.model;
+package ml.kanfa.engine;
 
 
 /**
- * @uthor Kanfa.
+ * @uthor Ibrahim Maïga.
  */
 public interface Observable {
     void addObserver(Observer observer);

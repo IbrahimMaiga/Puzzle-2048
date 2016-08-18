@@ -1,10 +1,10 @@
-package ml.kanfa.model;
+package ml.kanfa.engine;
 
 import java.io.Serializable;
 import java.util.ArrayList;
 
 /**
- * @author Kanfa.
+ * @author Ibrahim Maïga.
  */
 public class Data implements Serializable{
 

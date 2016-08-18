@@ -1,11 +1,11 @@
 package ml.kanfa.main;
 
-import ml.kanfa.views.GameFrame;
+import ml.kanfa.ui.GameFrame;
 
 import javax.swing.*;
 
 /**
- * @uthor Kanfa.
+ * @uthor Ibrahim Maïga.
  */
 public class Main {
 

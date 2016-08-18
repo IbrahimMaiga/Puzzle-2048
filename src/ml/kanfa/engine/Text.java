@@ -1,7 +1,7 @@
-package ml.kanfa.model;
+package ml.kanfa.engine;
 
 /**
- * @author Kanfa.
+ * @author Ibrahim Maïga.
  */
 public final class Text {
 
