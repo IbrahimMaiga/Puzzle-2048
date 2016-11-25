@@ -113,26 +113,29 @@ public class Model implements Observable, IName{
     }
 
     public void move(final Direction d) {
-        boolean b = false;
-        if (!this.win){
-            switch (d){
-                case UP: moveUp(); break;
-                case DOWN: moveDown(); break;
-                case LEFT: moveLeft(); break;
-                case RIGHT: moveRight(); break;
+        if (!this.win) {
+            switch (d) {
+                case UP:
+                    moveUp();
+                    break;
+                case DOWN:
+                    moveDown();
+                    break;
+                case LEFT:
+                    moveLeft();
+                    break;
+                case RIGHT:
+                    moveRight();
+                    break;
                 default:
             }
             this.generate();
             this.notifyObservers(this, OBS_FRAME);
             this.win = this.check(this.cells);
-            if (this.win){
+            if (this.win) {
                 this.data.setWin(true);
                 this.notifyWin();
-                b = true;
             }
-        }
-        if (b){
-            this.notifyWin();
         }
     }
 
@@ -397,8 +400,12 @@ public class Model implements Observable, IName{
         }
     }
 
-    public void notifyObservers(Object o, String... ignores) {
-        this.m_observers.keySet().stream().filter(key -> !Arrays.asList(ignores).contains(key)).forEach(key -> m_observers.get(key).update(o));
+    private void notifyObservers(Object o, String... ignores) {
+        this.m_observers.keySet().stream().filter(key -> !Arrays.asList(ignores).contains(key)).forEach(key -> {
+            (new Thread(() ->
+                m_observers.get(key).update(o)
+            )).start();
+        });
     }
 
     public void notifyWin(){

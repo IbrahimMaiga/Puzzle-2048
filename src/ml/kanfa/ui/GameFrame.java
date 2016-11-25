@@ -44,6 +44,7 @@ public class GameFrame extends JFrame implements ActionListener, Observer, IName
         this.container = new JPanel(new BorderLayout());
         this.panel = new JPanel();
         this.gamePanel = new GamePanel(this.model);
+        this.setIconImage((new ImageIcon(GameFrame.this.getClass().getResource("/ml/kanfa/icon/2048.png"))).getImage());
         this.initializeScorePanel(this.model, false);
         JPanel panel4 = new JPanel(new BorderLayout());
         panel4.add(this.panel, BorderLayout.NORTH);
@@ -100,6 +101,7 @@ public class GameFrame extends JFrame implements ActionListener, Observer, IName
                 saveCurrent(current);
             }
         });
+
         this.pack();
         this.setLocationRelativeTo(null);
         this.setVisible(true);
